@@ -1,0 +1,144 @@
+<html>
+<head>
+<script type="text/javascript">
+/*============================================*\
+|                Ratchet and Clank             |
+|         Up Your Arsenal and Deadlocked       |
+|             Skin Cheat Code Creator          |
+|                                              |
+|     Assembly code reversed by Agent Moose    |
+|    Javascript code created by Agent Moose    |
+|                                              |
+|           Created: January 07, 2021          |
+\*============================================*/
+
+
+function UYA_DL_SkinCodeCreator(){
+	function CreateCheat(Skin, SkinFinalValue){
+		// Map hex values to D-pad values
+		let codeMap = [
+			{
+				codes: ["0", "1", "2", "3"],
+				text: "Up"
+			},
+			{
+				codes: ["4", "5", "6", "7"],
+				text: "Down"
+			},
+			{
+				codes: ["8", "9", "a", "b"],
+				text: "Left"
+			},
+			{
+				codes: ["c", "d", "e", "f"],
+				text: "Right"
+			},
+		];
+
+		// Setup Skin Name and Skin Cheat Code variable
+		let Code = "";
+		if(Skin === "Mr. Sunshine"){
+			Code += "<br /><br /><b>Ratchet: Deadlocked Skin Codes:</b>";
+		};
+		if(Skin === "Nefarious"){
+			Code += "<br /><br /><b>Ratchet and Clank: Up Your Arsenal Skin Codes:</b>";
+		};
+		Code += "<br /><b>" + Skin + ":</b>";
+
+		// Loop through each of the byte in the Final Value to get d-pad value.
+		for(let a of SkinFinalValue){
+			Code += " " + codeMap.find(cm => cm.codes.includes(a)).text;
+		};
+
+		AllSkinCodes += Code;
+	};
+
+	// Create variable for the skin codes.  Doesn't do much until the very end of the code.
+	var AllSkinCodes = "";
+
+	// Initiate Skins array
+	let Skins = new Array();
+
+	// Up Your Arsenal Values - These are hard coded into assembly found at 0x006B6330.
+	Skins["UYA"] = [
+		// [Name, Hexadecimal Varaiable]
+		["Nefarious", 0xe1234567],
+		["Dan", 0xe76b492c]
+	];
+
+	// Deadlocked Values - These values are hard coded into the game and found at address 0x004ec548
+	Skins["DL"] = [
+		// [Name, Hexadecimal Variable]
+		["Mr. Sunshine", 0x14202239],
+		["Jak", 0x02050710],
+		["Renegade", 0x26e41939],
+		["Eugene", 0x2dafbf84],
+		["Vernon", 0xcc97b7af]
+	];
+
+	// If username field is blank, then clear the CheatCodes div.
+	if(!document.getElementById("Username").value){
+		return document.getElementById("CheatCodes").innerHTML = "";
+	};
+
+	// Changes username to uppercase.
+	// This is why when you use upper or lower case letters for the same username, it still provides the same cheat.
+	let Username = document.getElementById("Username").value.toUpperCase();
+	let UsernameVariable = 0;
+
+	// Loop through Username and make each character its hexadecimal equivalent
+	for(let index = 0, b = Username.length; index < b; ++index){
+
+		// Convert characters to their Character Code number.
+		let Char = Number(Username.charCodeAt(index));
+
+		// Multiply Char by the current index + 1.
+		// We add 1 to the current index because in Deadlocked/UYA the index started at 1, where in this code it started at 0.
+		let multiply = (Char * (index + 1));
+
+		// Add UsernameVariable to multiply variable, then store it back in UsernameVariable
+		UsernameVariable += multiply;
+	};
+
+	// Loop through Array Categories
+	for(let Category of Object.keys(Skins)){
+		// Loop through all Skins
+		for(let Skin of Object.keys(Skins[Category])){
+
+			// First multiply the Skin and UsernameVariable
+			let Cheat = (Skins[Category][Skin][1] * UsernameVariable)
+				.toString(16) // Convert to string as a hexadecimal value
+				.slice(-8) // Makes sure to only get the last eight characters of the final value.  We don't need anything more.
+				.split("") // Splits the value to seperate each character
+				.reverse(); // Reverse the value to match the endianness of the PS2
+
+			// This calls the function "CreateCheat".
+			// First argument is the Skins Name.
+			// Second argument is the Final Cheat value.
+			CreateCheat(Skins[Category][Skin][0], Cheat);
+		};
+	};
+	
+	// Once everything is done, write the codes in to #CheatCodes.
+	document.getElementById("CheatCodes").innerHTML = AllSkinCodes;
+};
+</script>
+</head>
+<body>
+	<div id="SkinCodeCreator">
+		<div id="SkinCodeCreatorInputs">
+			<input type="text" id="Username" placeholder="Enter Username" maxlength="15" spellcheck="false" style="font-size: 24px; padding: 8px;" onkeyup="UYA_DL_SkinCodeCreator()" /> <!--<input value="Create Codes" type="button" onclick="UYA_DL_SkinCodeCreator()" />-->
+		</div>
+		<div id="Info" style="padding: 0px 0px 10px 0px; font-size: 24px;">
+			<b>How to get and use codes:</b>
+			<br />Whether you are playing Deadlocked or Up your Arsenal, the setup is the same.
+			<br />1. Type in your username into the input box.  The codes will generate as you type.
+			<br />2. On your selected game, go to multiplayer and then Edit Profile.
+			<br />3. Change your username to the username you typed in.  Capitalization doesn't matter.
+			<br />4. While holding L2, use the D-Pad to enter your cheat codes.
+			<br />5. If the code was successful, a popup will show saying you have unlocked the skin.
+		</div>
+		<div id="CheatCodes" style="font-size: 24px;"></div>
+	</div>
+</body>
+</html>
